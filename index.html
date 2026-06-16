@@ -22,14 +22,17 @@
   }
 
   body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     background: var(--bg);
     font-family: 'Nunito', sans-serif;
     color: var(--light);
     min-height: 100vh;
     padding: 2rem 1.5rem 3rem;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 1520px;
+    margin: 0 auto;
   }
 
   /* ── Header ── */
@@ -227,9 +230,7 @@
   /* ── Responsivo ── */
   @media (max-width: 480px) {
     body {
-    display: flex;
-    flex-direction: column;
-    align-items: center; padding: 1.25rem 1rem 2.5rem; }
+    padding: 1.25rem 1rem 2.5rem; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 10px; }
   }
 </style>
