@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Lima IA tech · Painel</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script>
+  fetch('/api/me').then(r => { if (!r.ok) window.location.replace('/login.html'); });
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -216,6 +219,31 @@
     to   { left: 160%; }
   }
 
+  /* ── Ações do header ── */
+  .header-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .hbtn { background: rgba(90,170,232,0.1); border: 1px solid rgba(90,170,232,0.2); border-radius: 9px; padding: 7px; cursor: pointer; display: flex; align-items: center; color: var(--blue); transition: background 0.2s, color 0.2s; }
+  .hbtn:hover { background: rgba(0,196,255,0.15); color: var(--cyan); }
+
+  /* ── Modal de troca de senha ── */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1.5rem; }
+  .overlay.open { display: flex; }
+  .modal { background: #111e38; border: 1px solid rgba(90,170,232,0.25); border-radius: 18px; padding: 2rem; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 1.25rem; }
+  .modal h2 { font-size: 16px; font-weight: 800; color: var(--light); }
+  .modal label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; display: block; margin-bottom: 5px; }
+  .modal input { width: 100%; background: var(--bg); border: 1px solid rgba(90,170,232,0.2); border-radius: 9px; padding: 11px 13px; font-size: 14px; font-family: 'Nunito', sans-serif; color: var(--light); outline: none; transition: border-color 0.2s; }
+  .modal input:focus { border-color: var(--cyan); }
+  .modal-err { font-size: 12px; color: #f87171; background: rgba(248,113,113,0.1); border-radius: 8px; padding: 9px 12px; display: none; }
+  .modal-err.show { display: block; }
+  .modal-ok { font-size: 12px; color: #4ade80; background: rgba(74,222,128,0.1); border-radius: 8px; padding: 9px 12px; display: none; }
+  .modal-ok.show { display: block; }
+  .modal-btns { display: flex; gap: 8px; }
+  .modal-btns button { flex: 1; padding: 11px; border-radius: 9px; font-size: 14px; font-weight: 700; font-family: 'Nunito', sans-serif; cursor: pointer; border: none; transition: opacity 0.2s; }
+  .btn-save { background: var(--cyan); color: #0a1628; }
+  .btn-save:hover { opacity: 0.88; }
+  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-cancel { background: rgba(90,170,232,0.1); color: var(--blue); border: 1px solid rgba(90,170,232,0.2) !important; }
+  .btn-cancel:hover { background: rgba(90,170,232,0.18); }
+
   /* ── Responsivo ── */
   @media (max-width: 480px) {
     body {
@@ -234,7 +262,40 @@
   <div class="header-text">
     <p>Painel de Ferramentas</p>
   </div>
+  <div class="header-actions">
+    <button class="hbtn" title="Trocar senha" onclick="document.getElementById('modalPwd').classList.add('open')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M12 11.5V7a4 4 0 0 1 8 0v4"/><rect x="10" y="11" width="10" height="10" rx="2"/></svg>
+    </button>
+    <button class="hbtn" title="Sair" onclick="handleLogout()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+  </div>
 </header>
+
+<!-- Modal: trocar senha -->
+<div id="modalPwd" class="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h2>Trocar senha</h2>
+    <div id="mErr" class="modal-err"></div>
+    <div id="mOk"  class="modal-ok">Senha alterada com sucesso!</div>
+    <div>
+      <label>Senha atual</label>
+      <input id="mCur" type="password" placeholder="••••••••"/>
+    </div>
+    <div>
+      <label>Nova senha</label>
+      <input id="mNew" type="password" placeholder="••••••••"/>
+    </div>
+    <div>
+      <label>Confirmar nova senha</label>
+      <input id="mNew2" type="password" placeholder="••••••••"/>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" id="mBtn" onclick="handleChangePwd()">Salvar</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══ VPS ══ -->
 <section>
@@ -486,6 +547,63 @@
 </section>
 
 </div>
+
+<script>
+async function handleLogout() {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/login.html';
+}
+
+function closeModal() {
+  document.getElementById('modalPwd').classList.remove('open');
+  ['mCur','mNew','mNew2'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('mErr').classList.remove('show');
+  document.getElementById('mOk').classList.remove('show');
+  document.getElementById('mBtn').disabled = false;
+  document.getElementById('mBtn').textContent = 'Salvar';
+}
+
+async function handleChangePwd() {
+  const cur  = document.getElementById('mCur').value;
+  const nw   = document.getElementById('mNew').value;
+  const nw2  = document.getElementById('mNew2').value;
+  const err  = document.getElementById('mErr');
+  const ok   = document.getElementById('mOk');
+  const btn  = document.getElementById('mBtn');
+  err.classList.remove('show');
+  ok.classList.remove('show');
+
+  if (nw !== nw2) {
+    err.textContent = 'As senhas não coincidem.';
+    err.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Salvando…';
+
+  try {
+    const res = await fetch('/api/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword: cur, newPassword: nw }),
+    });
+    if (res.ok) {
+      ok.classList.add('show');
+      ['mCur','mNew','mNew2'].forEach(id => document.getElementById(id).value = '');
+      setTimeout(closeModal, 1500);
+    } else {
+      err.textContent = 'Senha atual incorreta.';
+      err.classList.add('show');
+    }
+  } catch {
+    err.textContent = 'Erro de conexão. Tente novamente.';
+    err.classList.add('show');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Salvar';
+}
+</script>
 </body>
 </html>
 
