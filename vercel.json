@@ -3,5 +3,10 @@
     "api/*.js": {
       "maxDuration": 10
     }
-  }
+  },
+  "redirects": [
+    { "source": "/reset-password", "destination": "/reset-password.html", "permanent": false },
+    { "source": "/forgot-password", "destination": "/forgot-password.html", "permanent": false },
+    { "source": "/login", "destination": "/login.html", "permanent": false }
+  ]
 }
