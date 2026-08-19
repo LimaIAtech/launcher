@@ -41,18 +41,18 @@
 
   /* ── Header ── */
   header {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 14px;
     margin-bottom: 2.5rem;
-    flex-wrap: wrap;
   }
 
   .header-logo {
     display: flex;
     align-items: center;
+    justify-self: start;
     min-width: 0;
-    flex-shrink: 1;
   }
 
   .header-logo svg {
@@ -62,7 +62,10 @@
     display: block;
   }
 
-  .header-text { flex-shrink: 0; }
+  .header-text {
+    justify-self: center;
+    text-align: center;
+  }
 
   .header-text p {
     font-size: 11px;
@@ -71,6 +74,7 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     margin-top: 4px;
+    white-space: nowrap;
   }
 
   /* ── Seções ── */
@@ -232,7 +236,7 @@
   }
 
   /* ── Ações do header ── */
-  .header-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .header-actions { justify-self: end; display: flex; align-items: center; gap: 8px; }
   .hbtn { background: rgba(90,170,232,0.1); border: 1px solid rgba(90,170,232,0.2); border-radius: 9px; padding: 7px; cursor: pointer; display: flex; align-items: center; color: var(--blue); transition: background 0.2s, color 0.2s; }
   .hbtn:hover { background: rgba(0,196,255,0.15); color: var(--cyan); }
 
